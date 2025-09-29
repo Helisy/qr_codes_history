@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Produtos</title>
+    <title>Carregando</title>
     <script src="https://kit.fontawesome.com/2f7352ec62.js" crossorigin="anonymous"></script>
     <script src="/public/scripts/http_helper.js"></script>
     <script src="/public/scripts/notifications.js" defer></script>
@@ -78,7 +78,7 @@
     <div class="container-flex">
         <div class="content">
             <div class="struct-card row align-center space-between">
-                <h1>Shein</h1>
+                <h1 id="mktp_title">Shein</h1>
                 <button class="btn primary" onclick="closeBatch('loading_spinner')">Fechar Lote</button>
             </div>
             <div class="struct-card align-start w50">
@@ -98,6 +98,13 @@
     <script>
         const current_page = document.location.pathname.split("/")[2];
         document.getElementById(current_page).classList.add("selected");
+
+        const mktp_title = document.querySelector("#mktp_title");
+        let mktp = current_page.slice(0,1).toLocaleUpperCase() + current_page.slice(1);
+
+        mktp_title.innerHTML = mktp;
+
+        document.title = mktp;
 
         const shp_codes_table = document.querySelector("#shp_codes_table");
 

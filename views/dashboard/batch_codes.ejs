@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Produtos</title>
+    <title>Lote</title>
     <script src="https://kit.fontawesome.com/2f7352ec62.js" crossorigin="anonymous"></script>
     <script src="/public/scripts/http_helper.js"></script>
     <script src="/public/scripts/notifications.js" defer></script>
@@ -296,6 +296,8 @@
             }
 
             counter.innerHTML = `${quantity}/${batch.quantity} bipados`
+
+            document.title = `Lote ${batch.marketplace_label} #${batch.id}`;
 
             let title_html = 
             `
