@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Produtos</title>
+    <script src="https://kit.fontawesome.com/2f7352ec62.js" crossorigin="anonymous"></script>
+    <script src="/public/scripts/http_helper.js"></script>
+    <script src="/public/scripts/notifications.js" defer></script>
+    <script src="/public/scripts/inputs.js" defer></script>
+
+    <link rel="stylesheet" href="/public/styles/main.css">
+    <link rel="stylesheet" href="/public/styles/buttons.css">
+    <link rel="stylesheet" href="/public/styles/structure_cards.css">
+    <link rel="stylesheet" href="/public/styles/grid_table.css">
+    <link rel="stylesheet" href="/public/styles/info_card.css">
+    <link rel="stylesheet" href="/public/styles/inputs.css">
+
+    <style>
+
+        .btn
+        {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+        }
+
+        nav .btn > i 
+        {
+            margin-right: 1rem;
+            font-size: 1.5rem;
+        }
+
+    </style>
+</head>
+<body>
+    <nav>
+        <div>
+            <a class="btn basic" id="shopee" href="/dashboard/shopee">Shopee</a>
+            <a class="btn basic" id="shein" href="/dashboard/shein">Shein</a>
+        </div>
+        <div>
+            <a class="btn primary" id="insert-code" href="/dashboard/insert-code">
+                <i class="fa-solid fa-qrcode"></i>
+                Inserir Código
+            </a>
+        </div>
+        <div>
+            <a class="btn basic" id="batches" href="/dashboard/batches">Lotes Abertos</a>
+            <a class="btn basic" id="history" href="/dashboard/history">Histórico</a>
+        </div>
+    </nav>
+    <div class="notification" id="notification">
+        <div>
+            <i class="fa-solid fa-check"></i>
+            <div>
+                <p></p>
+            </div>
+        </div>
+    </div>
+    <div class="hover-container">
+        <div class="ifc-loading" id="loading_spinner">
+            <div class="lds-dual-ring"></div>
+            <label for="">Aguarde...</label>
+        </div>
+    </div>
+    <div class="container-flex">
+        <div class="content">
+            <div class="struct-card">
+                <div class="inpt">
+                    <input placeholder="Insira o código de envio" id="code_input" type="text">
+                    <button class="action-btn btn primary" onclick="sendShpCode()"><i class="fa-solid fa-arrow-right"></i></button>
+                </div>
+            </div>
+            <!-- <div class="struct-card align-start w50">
+                <h3>Últimos códigos inseridos por você:</h3>
+                <div class="tb-body">
+                    <div class="tb-header">
+                        <span>Código de Envio</span>
+                        <span>Ecommerce</span>
+                    </div>
+                </div>
+            </div>
+            <div class="struct-card align-start w50">
+                <div class="warning-info">
+                    <h2>Importante</h2>
+                    <p>A listagem acima é gerada com base no seu endereço IP atual. Como esse IP pode mudar automaticamente, as informações exibidas podem ser atualizadas ou até desaparecer, dependendo da nova localização detectada.</p>
+                    <p>Códigos de lotes fechados não aparecerão aqui.</p>
+                </div>
+            </div> -->
+        </div>
+    </div>
+    <script>
+        const current_page = document.location.pathname.split("/")[2];
+        document.getElementById(current_page).classList.add("selected");
+
+        const code_input = document.querySelector("#code_input");
+
+        const hover_elements = 
+        {
+            loading_spinner: document.querySelector("#loading_spinner"), 
+        }
+
+        const hover_container = document.querySelector(".hover-container");
+        hover_container.style.display = "none";
+
+        function toggleHoverContainer(el_id){
+            if(hover_container.style.display == "none"){
+                hover_container.style.display = "flex";
+
+                for (const [key, value] of Object.entries(hover_elements)) {
+                
+                    if(key == el_id){
+                        value.style.display = "flex";
+                        continue;
+                    }
+
+                    value.style.display = "none";
+                }
+                
+            }else{
+                hover_container.style.display = "none";
+            }
+        }
+
+
+
+        async function sendShpCode()
+        {
+            if(code_input.value.length < 10){
+                pushNotify("error", "Insira um código válido");
+                return;
+            }
+
+            toggleHoverContainer("loading_spinner");
+
+            const response = await postData("/api/v1/codes", "post", {code: code_input.value})
+
+            switch (response.code) {
+                case 201:
+                    pushNotify("success", `Código inserido com sucesso!`);
+                    code_input.value = "";
+                    toggleHoverContainer();
+                    return;
+                case 400:
+                    pushNotify("error", response.message)
+                    code_input.value = "";
+                    toggleHoverContainer();
+                    return;
+                case 500:
+                    pushNotify("error", "Server Error")
+                    code_input.value = "";
+                    toggleHoverContainer();
+                    return;
+            }
+
+           
+            toggleHoverContainer();
+        }
+
+        code_input.addEventListener('keydown', async (e) => {
+            if (e.key === 'Enter') {
+                await sendShpCode();
+            }
+        });
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,168 @@
+/****** Script do comando SelectTopNRows de SSMS  ******/
+/*
+SELECT TOP (1000) [AUTOID]
+      ,[PEDIDO]
+      ,[EMPRESA]
+      ,[MAQ]
+      ,[CFOPID]
+      ,[CODID]
+      ,[COD_INTERNO]
+      ,[COD_PEDIDO]
+      ,[DESCRICAOPROD]
+      ,[MARCA]
+      ,[EDICAO]
+      ,[COR]
+      ,[EMBALAGEM_VOL]
+      ,[EMBALAGEM]
+      ,[UNIDADE]
+      ,[PESO]
+      ,[ESTOQUE_ID]
+      ,[QUANT]
+      ,[QUANTDEV]
+      ,[QUANTSEP]
+      ,[CST]
+      ,[BASE_IPI]
+      ,[ALIQ_IPI]
+      ,[VLR_IPI]
+      ,[BASE_ICMS]
+      ,[ALIQ_ICMS]
+      ,[VLR_ICMS]
+      ,[IVA]
+      ,[BASE_SUBST]
+      ,[VLR_SUBST]
+      ,[PORC_DESC]
+      ,[VLR_DESC]
+      ,[DESCADIC]
+      ,[VLR_GARANTIA]
+      ,[VLR_CUSTO]
+      ,[VLR_TABELA]
+      ,[VLR_UNIT]
+      ,[VLR_TOTAL]
+      ,[VLR_FRETE]
+      ,[STATUS]
+      ,[MOVIMENTOU_ESTOQUE]
+      ,[USRLIB]
+      ,[POSICAOENT]
+      ,[QUANT_PROD]
+      ,[LARGURA]
+      ,[ALTURA]
+      ,[COMPRIMENTO]
+      ,[OBSI]
+      ,[DTENTREGA]
+      ,[NITEMB2B]
+      ,[COMISSAOV]
+      ,[COMISSAOR]
+      ,[GERAOP]
+      ,[STPROD]
+      ,[ORDERID_ITEM]
+      ,[DESCRICAOWEB]
+      ,[VLR_COMISSAO]
+      ,[VLR_FRETEREAL]
+      ,[CODID_VAR]
+      ,[SKU_VAR]
+      ,[TIPO_FRETE]
+      ,[DELIVERY_ID]
+      ,[VLR_MARGEM]
+      ,[PERC_MARGEM]
+  FROM [AmbarDeliquadros].[dbo].[PEDIDO_MATERIAIS_ITENS_CLIENTE]
+
+  */
+
+  /*select * from  [AmbarDeliquadros].[dbo].[PEDIDO_MATERIAIS_ITENS_CLIENTE] order by AUTOID desc;*/
+
+  /*select * from  [AmbarDeliquadros].[dbo].[PEDIDO_MATERIAIS_CLIENTE] order by PEDIDO desc;*/
+
+
+  /*
+  select [AmbarDeliquadros].[dbo].[PEDIDO_MATERIAIS_ITENS_CLIENTE].*, [AmbarDeliquadros].[dbo].[PEDIDO_MATERIAIS_CLIENTE].DATA  from 
+  [AmbarDeliquadros].[dbo].[PEDIDO_MATERIAIS_ITENS_CLIENTE] join [AmbarDeliquadros].[dbo].[PEDIDO_MATERIAIS_CLIENTE] on 
+  [AmbarDeliquadros].[dbo].[PEDIDO_MATERIAIS_ITENS_CLIENTE].PEDIDO = [AmbarDeliquadros].[dbo].[PEDIDO_MATERIAIS_CLIENTE].PEDIDO order by 
+  [AmbarDeliquadros].[dbo].[PEDIDO_MATERIAIS_ITENS_CLIENTE].PEDIDO desc;
+
+  */
+
+	/*select * from  [AmbarDeliquadros].[dbo].[PEDIDO_MATERIAIS_ITENS_CLIENTE] order by COD_INTERNO desc;*/
+
+
+	/*
+SELECT DISTINCT COD_INTERNO AS quantidade_valores_unicos
+FROM [AmbarDeliquadros].[dbo].[PEDIDO_MATERIAIS_ITENS_CLIENTE]*/
+
+/*
+SELECT COD_INTERNO, COUNT(*) AS total
+FROM [AmbarDeliquadros].[dbo].[PEDIDO_MATERIAIS_ITENS_CLIENTE]
+GROUP BY COD_INTERNO;
+*/
+
+
+select [AmbarDeliquadros].[dbo].[PEDIDO_MATERIAIS_ITENS_CLIENTE].*, [AmbarDeliquadros].[dbo].[PEDIDO_MATERIAIS_CLIENTE].DATA, [AmbarDeliquadros].[dbo].[PEDIDO_MATERIAIS_CLIENTE].ORIGEM  from 
+  [AmbarDeliquadros].[dbo].[PEDIDO_MATERIAIS_ITENS_CLIENTE] join [AmbarDeliquadros].[dbo].[PEDIDO_MATERIAIS_CLIENTE] on 
+  [AmbarDeliquadros].[dbo].[PEDIDO_MATERIAIS_ITENS_CLIENTE].PEDIDO = [AmbarDeliquadros].[dbo].[PEDIDO_MATERIAIS_CLIENTE].PEDIDO
+  WHERE COD_INTERNO = 'PP1296-10' AND CONVERT(DATE, DATA) >= '2023-05-28' AND CONVERT(DATE, DATA) <= '2023-06-27';
+
+
+
+
+
+
+
+
+SELECT COD_INTERNO, COUNT(*),SUM(VLR_UNIT)
+FROM (
+ select [AmbarDeliquadros].[dbo].[PEDIDO_MATERIAIS_ITENS_CLIENTE].*, [AmbarDeliquadros].[dbo].[PEDIDO_MATERIAIS_CLIENTE].DATA  from 
+  [AmbarDeliquadros].[dbo].[PEDIDO_MATERIAIS_ITENS_CLIENTE] join [AmbarDeliquadros].[dbo].[PEDIDO_MATERIAIS_CLIENTE] on 
+  [AmbarDeliquadros].[dbo].[PEDIDO_MATERIAIS_ITENS_CLIENTE].PEDIDO = [AmbarDeliquadros].[dbo].[PEDIDO_MATERIAIS_CLIENTE].PEDIDO
+) as c
+WHERE CONVERT(DATE, c.DATA) = '2023-06-27'
+GROUP BY COD_INTERNO;
+
+
+ /*
+SELECT COD_INTERNO, COUNT(*) AS total
+FROM (
+ select [AmbarDeliquadros].[dbo].[PEDIDO_MATERIAIS_ITENS_CLIENTE].*, [AmbarDeliquadros].[dbo].[PEDIDO_MATERIAIS_CLIENTE].DATA  from 
+  [AmbarDeliquadros].[dbo].[PEDIDO_MATERIAIS_ITENS_CLIENTE] join [AmbarDeliquadros].[dbo].[PEDIDO_MATERIAIS_CLIENTE] on 
+  [AmbarDeliquadros].[dbo].[PEDIDO_MATERIAIS_ITENS_CLIENTE].PEDIDO = [AmbarDeliquadros].[dbo].[PEDIDO_MATERIAIS_CLIENTE].PEDIDO
+) as c
+WHERE CONVERT(DATE, c.DATA) = '2023-06-27'
+GROUP BY COD_INTERNO;
+*/
+
+
+/*[VLR_FRETE], [VLR_TOTAL]*/
+
+SELECT c.PEDIDO,[COD_INTERNO], c.QUANT, c.VLRFRETE,[VLR_UNIT],[VLR_TOTAL],ENVIO,[DATA], [AmbarDeliquadros].[dbo].[EMPRESA].FANTASIA as EMPRESA, [AmbarDeliquadros].[dbo].[ECOM_ORIGEM].ORIGEM_NOME AS ECOMMERCE
+FROM (
+	select [AmbarDeliquadros].[dbo].[PEDIDO_MATERIAIS_ITENS_CLIENTE].*, [AmbarDeliquadros].[dbo].[PEDIDO_MATERIAIS_CLIENTE].DATA,
+	[AmbarDeliquadros].[dbo].[PEDIDO_MATERIAIS_CLIENTE].ORIGEM,
+	[AmbarDeliquadros].[dbo].[PEDIDO_MATERIAIS_CLIENTE].TOTAL_PEDIDO,
+	[AmbarDeliquadros].[dbo].[PEDIDO_MATERIAIS_CLIENTE].QUANT_ITENS,
+	[AmbarDeliquadros].[dbo].[PEDIDO_MATERIAIS_CLIENTE].VLRFRETE,
+	[AmbarDeliquadros].[dbo].[PEDIDO_MATERIAIS_CLIENTE].TIPO_FRETE as ENVIO
+	from 
+	[AmbarDeliquadros].[dbo].[PEDIDO_MATERIAIS_ITENS_CLIENTE] join [AmbarDeliquadros].[dbo].[PEDIDO_MATERIAIS_CLIENTE] on 
+	[AmbarDeliquadros].[dbo].[PEDIDO_MATERIAIS_ITENS_CLIENTE].PEDIDO = [AmbarDeliquadros].[dbo].[PEDIDO_MATERIAIS_CLIENTE].PEDIDO
+) as c join [AmbarDeliquadros].[dbo].[EMPRESA] on c.EMPRESA = [AmbarDeliquadros].[dbo].[EMPRESA].DIAG_EMPRESA
+join [AmbarDeliquadros].[dbo].[ECOM_ORIGEM] on c.ORIGEM = [AmbarDeliquadros].[dbo].[ECOM_ORIGEM].ORIGEM_ID 
+WHERE c.COD_INTERNO = 'PTS0033-P' AND CONVERT(DATE, c.DATA) >= '2023-05-28' AND CONVERT(DATE, c.DATA) <= '2023-06-27';
+
+
+/* Nivel UM */
+SELECT [COD_INTERNO], SUM(c.QUANT) AS TOTAL_VENDIDOS, SUM([VLR_TOTAL]) AS VLR_TOTAL_SF, SUM(c.VLRFRETE) AS FRETE_TOTAL, SUM([VLR_TOTAL] + c.VLRFRETE ) AS VALOR_TOTAL
+FROM (
+	select [AmbarDeliquadros].[dbo].[PEDIDO_MATERIAIS_ITENS_CLIENTE].*, [AmbarDeliquadros].[dbo].[PEDIDO_MATERIAIS_CLIENTE].DATA,
+	[AmbarDeliquadros].[dbo].[PEDIDO_MATERIAIS_CLIENTE].ORIGEM,
+	[AmbarDeliquadros].[dbo].[PEDIDO_MATERIAIS_CLIENTE].TOTAL_PEDIDO,
+	[AmbarDeliquadros].[dbo].[PEDIDO_MATERIAIS_CLIENTE].QUANT_ITENS,
+	[AmbarDeliquadros].[dbo].[PEDIDO_MATERIAIS_CLIENTE].VLRFRETE,
+	[AmbarDeliquadros].[dbo].[PEDIDO_MATERIAIS_CLIENTE].TIPO_FRETE as ENVIO
+	from 
+	[AmbarDeliquadros].[dbo].[PEDIDO_MATERIAIS_ITENS_CLIENTE] join [AmbarDeliquadros].[dbo].[PEDIDO_MATERIAIS_CLIENTE] on 
+	[AmbarDeliquadros].[dbo].[PEDIDO_MATERIAIS_ITENS_CLIENTE].PEDIDO = [AmbarDeliquadros].[dbo].[PEDIDO_MATERIAIS_CLIENTE].PEDIDO
+) as c 
+WHERE CONVERT(DATE, c.DATA) >= '2023-05-01' AND CONVERT(DATE, c.DATA) <= '2023-05-31'
+GROUP BY COD_INTERNO;
+
+
+
+ 

@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Produtos</title>
+    <script src="https://kit.fontawesome.com/2f7352ec62.js" crossorigin="anonymous"></script>
+    <script src="/public/scripts/http_helper.js"></script>
+    <script src="/public/scripts/notifications.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+
+    <link rel="stylesheet" href="/public/styles/main.css">
+    <link rel="stylesheet" href="/public/styles/buttons.css">
+    <link rel="stylesheet" href="/public/styles/structure_cards.css">
+    <link rel="stylesheet" href="/public/styles/grid_table.css">
+    <link rel="stylesheet" href="/public/styles/info_card.css">
+    <style>
+
+        .btn
+        {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+        }
+
+        .btn > i 
+        {
+            margin-right: 1rem;
+            font-size: 1.5rem;
+        }
+
+    </style>
+</head>
+<body>
+    <nav>
+        <div>
+            <a class="btn basic" id="shopee" href="/dashboard/shopee">Shopee</a>
+            <a class="btn basic" id="shein" href="/dashboard/shein">Shein</a>
+        </div>
+        <div>
+            <a class="btn primary" id="insert-code" href="/dashboard/insert-code">
+                <i class="fa-solid fa-qrcode"></i>
+                Inserir Código
+            </a>
+        </div>
+        <div>
+            <a class="btn basic" id="batches" href="/dashboard/batches">Lotes Abertos</a>
+            <a class="btn basic" id="history" href="/dashboard/history">Histórico</a>
+        </div>
+    </nav>
+    <div class="notification" id="notification">
+        <div>
+            <i class="fa-solid fa-check"></i>
+            <div>
+                <p></p>
+            </div>
+        </div>
+    </div>
+    <div class="hover-container">
+        <div class="info-card w35" id="qr_code_viwer">
+            <div class="ifc-header">
+                <h3></h3>
+                <i class="fa-solid fa-xmark" onclick="toggleHoverContainer()"></i>
+            </div>
+            <div class="ifc-body" id="qr_code_holder">
+
+            </div>
+            <!-- <div class="ifc-footer">
+                <button class="btn primary">Salvar</button>
+            </div> -->
+        </div>
+        <div class="ifc-loading" id="loading_spinner">
+            <div class="lds-dual-ring"></div>
+            <label for="">Aguarde...</label>
+        </div>
+    </div>
+    <div class="container-flex">
+        <div class="content">
+            <div class="struct-card row align-center space-between">
+                <h1>Shein</h1>
+                <button class="btn primary" onclick="closeBatch('loading_spinner')">Fechar Lote</button>
+            </div>
+            <div class="struct-card align-start w50">
+                <div class="tb-body" id="shp_codes_table">
+                    <!-- <div class="tb-header">
+                        <span>Código de Envio</span>
+                        <span>Ecommerce</span>
+                    </div> -->
+                    <!-- <div class="tb-line">
+                        <span><i class="fa-solid fa-qrcode" onclick="toggleHoverContainer('qr_code_viwer')"> </i>GC2506281121629186 </i></span>
+                        <span>SHEIN DELIQUADROS </span>
+                    </div> -->
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        const current_page = document.location.pathname.split("/")[2];
+        document.getElementById(current_page).classList.add("selected");
+
+        const shp_codes_table = document.querySelector("#shp_codes_table");
+
+        const hover_elements = 
+        {
+            loading_spinner: document.querySelector("#loading_spinner"),
+            qr_code_viwer: document.querySelector("#qr_code_viwer"), 
+        }
+
+        const hover_container = document.querySelector(".hover-container");
+        hover_container.style.display = "none";
+
+        function toggleHoverContainer(el_id){
+            if(hover_container.style.display == "none"){
+                hover_container.style.display = "flex";
+
+                for (const [key, value] of Object.entries(hover_elements)) {
+                
+                    if(key == el_id){
+                        value.style.display = "flex";
+                        continue;
+                    }
+
+                    value.style.display = "none";
+                }
+                
+            }else{
+                hover_container.style.display = "none";
+            }
+        }
+
+        let marketplace_id;
+        switch (current_page) {
+            case "shopee":
+                marketplace_id = 1;
+                break;
+            case "shein":
+                marketplace_id = 2;
+                break;
+        }
+
+        async function main()
+        {
+            let shp_codes = await fetchInfo(`/api/v1/codes?marketplace_id=${marketplace_id}&batch_id=null`);
+            shp_codes = shp_codes.data;
+
+            let table_html = 
+            `
+                <div class="tb-header">
+                    <span>Código de Envio</span>
+                    <span>Ecommerce</span>
+                </div>
+            `;
+
+            if(shp_codes.length < 1)
+            {
+                table_html += 
+                `
+                    <div class="tb-empty">
+                        <p>Não há dados para exibir...</p>
+                    </div>
+                `;
+
+                shp_codes_table.innerHTML = table_html;
+
+                return;
+            }
+
+            for (const code of shp_codes) {
+                table_html += 
+                `
+                    <div class="tb-line">
+                        <span><i class="fa-solid fa-qrcode" onclick="showQrCode('${code.code}')"> </i>${code.code}</i></span>
+                        <span>${code.ecommerce_label}</span>
+                    </div>
+                `;
+            }
+
+            shp_codes_table.innerHTML = table_html;
+        }
+
+        main();
+
+        function showQrCode(code){
+            document.getElementById("qr_code_holder").innerHTML = "";
+
+            new QRCode(document.getElementById("qr_code_holder"), {
+                text: code,
+                width: 256,
+                height: 256
+            });
+
+            document.querySelector("#qr_code_viwer h3").innerHTML = "QR Code - " + code;
+
+            toggleHoverContainer("qr_code_viwer");
+        }
+
+        async function closeBatch()
+        {
+            toggleHoverContainer("loading_spinner");
+
+            const response = await postData("/api/v1/batches", "post", {marketplace_id: marketplace_id})
+
+            switch (response.code) {
+                case 201:
+                    pushNotify("success", `Lote ${response.data.id} criado`);
+                    await main();
+                    toggleHoverContainer();
+                    return;
+                case 400:
+                    pushNotify("error", response.message)
+                    toggleHoverContainer();
+                    return;
+                case 500:
+                    pushNotify("error", "Server Error")
+                    toggleHoverContainer();
+                    return;
+            }
+
+            await main();
+
+            toggleHoverContainer();
+        }
+
+    </script>
+</body>
+</html>

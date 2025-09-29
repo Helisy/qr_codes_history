@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <script src="/public/scripts/http_helper.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+    <title>Imprimir QR Codes</title>
+
+    <style>
+        #qr_code div
+        {
+            zoom: 1;
+            height: 28mm;
+            width: 50mm;
+            padding: 0;
+            margin: 0;
+            text-align: start;
+            padding: 2mm 0;
+            overflow: hidden;
+            /* background-color: brown; */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        #qr_code div canvas
+        {
+            width: auto;
+            height: 100%;
+        }
+
+        #qr_code div img
+        {
+            width: auto;
+            height: 100%;
+        }
+
+    </style>
+</head>
+<body>
+    <div id="qr_code">
+
+    </div>
+</body>
+<script>
+    async function main() {
+        const batch_id = document.location.pathname.split("/")[3];
+
+        const qr_code = document.querySelector("#qr_code");
+
+        let codes = await fetchInfo(`/api/v1/codes?batch_id=${batch_id}`);
+        codes = codes.data;
+
+        codes.forEach(item => {
+            const qrDiv = document.createElement('div');
+            new QRCode(qrDiv, {
+                text: item.code,
+                width: 256,
+                height: 256
+            });
+
+            qr_code.appendChild(qrDiv);
+        });
+    }
+
+    main();
+</script>
+</html>

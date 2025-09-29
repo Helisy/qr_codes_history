@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Produtos</title>
+    <script src="https://kit.fontawesome.com/2f7352ec62.js" crossorigin="anonymous"></script>
+    <script src="/public/scripts/http_helper.js"></script>
+    <script src="/public/scripts/notifications.js" defer></script>
+    <script src="/public/scripts/inputs.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+    <link rel="stylesheet" href="/public/styles/main.css">
+    <link rel="stylesheet" href="/public/styles/buttons.css">
+    <link rel="stylesheet" href="/public/styles/structure_cards.css">
+    <link rel="stylesheet" href="/public/styles/grid_table.css">
+    <link rel="stylesheet" href="/public/styles/info_card.css">
+    <link rel="stylesheet" href="/public/styles/inputs.css">
+
+    <style>
+        .btn
+        {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+        }
+
+        nav .btn > i 
+        {
+            margin-right: 1rem;
+            font-size: 1.5rem;
+        }
+
+        .custom-line > div:nth-child(1)
+        {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .custom-line img
+        {
+            width: 3.5rem;
+            height: auto;
+            border-radius: .5rem;
+        }
+
+    </style>
+</head>
+<body>
+    <nav>
+        <div>
+            <a class="btn basic" id="shopee" href="/dashboard/shopee">Shopee</a>
+            <a class="btn basic" id="shein" href="/dashboard/shein">Shein</a>
+        </div>
+        <div>
+            <a class="btn primary" id="insert-code" href="/dashboard/insert-code">
+                <i class="fa-solid fa-qrcode"></i>
+                Inserir Código
+            </a>
+        </div>
+        <div>
+            <a class="btn basic" id="batches" href="/dashboard/batches">Lotes Abertos</a>
+            <a class="btn basic" id="history" href="/dashboard/history">Histórico</a>
+        </div>
+    </nav>
+    <div class="notification" id="notification">
+        <div>
+            <i class="fa-solid fa-check"></i>
+            <div>
+                <p></p>
+            </div>
+        </div>
+    </div>
+    <div class="hover-container">
+        <div class="info-card w35" id="qr_code_viwer">
+            <div class="ifc-header">
+                <h3></h3>
+                <i class="fa-solid fa-xmark" onclick="toggleHoverContainer()"></i>
+            </div>
+            <div class="ifc-body" id="qr_code_holder">
+
+            </div>
+            <!-- <div class="ifc-footer">
+                <button class="btn primary">Salvar</button>
+            </div> -->
+        </div>
+        <div class="ifc-loading" id="loading_spinner">
+            <div class="lds-dual-ring"></div>
+            <label for="">Aguarde...</label>
+        </div>
+    </div>
+    <div class="container">
+        <div class="content">
+            <div class="struct-card row align-center space-between">
+                <div class="inner-st">
+                    <div class="inpt">
+                        <span>De</span>
+                        <input type="date" id="date_in">
+                    </div>
+                    <div class="inpt">
+                        <span>Até</span>
+                        <input type="date" id="date_out">
+                    </div>
+                </div>
+                <button class="btn primary" onclick="getData()">Buscar</button>
+            </div>
+        </div>
+        <div class="content flex align-start">
+            <div class="w25" id="batches_holder">
+                <!-- <div class="struct-card row space-between align-center custom-line">
+                    <div>
+                            <img src="/public/images/shopee_logo.jpg" alt="">
+                        <div>
+                            <h3>#55 <span class="label warning">ABERTO</span></h3>
+                            <span>05/05/2025 03:50:23</span>
+                        </div>
+                    </div>
+                    <h2>125</h2>
+                </div> -->
+            </div>
+            <div class="struct-card align-start w50" id="codes_holder">
+                <!-- <button class="btn primary" ><i class="fa-solid fa-print"></i>Imprimir</button>
+                <div class="tb-body">
+                    <div class="tb-header">
+                        <span>Código de Envio</span>
+                        <span>Ecommerce</span>
+                    </div>
+                    <div class="tb-line">
+                        <span><i class="fa-solid fa-qrcode" onclick="toggleHoverContainer('qr_code_viwer')"> </i>GC2506281121629186 </i></span>
+                        <span>SHEIN DELIQUADROS </span>
+                    </div>
+                </div> -->
+            </div>
+            <div class="struct-card align-start w25" id="detail_holder">
+                <!-- <h2>Detalhes</h2>
+                <div>
+                        <p>Criado em 05/05/2025 03:50:23</p>
+                        <p>Finalizado em 05/05/2025 03:50:23</p>
+                </div> -->
+            </div>
+        </div>
+    </div>
+    <script>
+        const current_page = document.location.pathname.split("/")[2];
+        document.getElementById(current_page).classList.add("selected");
+
+        const date_in = document.querySelector("#date_in") 
+        const date_out = document.querySelector("#date_out")
+        const batches_holder = document.querySelector("#batches_holder")
+        const codes_holder = document.querySelector("#codes_holder")
+        const detail_holder = document.querySelector("#detail_holder")
+
+        const hover_elements = 
+        {
+            loading_spinner: document.querySelector("#loading_spinner"), 
+            qr_code_viwer: document.querySelector("#qr_code_viwer"), 
+        }
+
+        const hover_container = document.querySelector(".hover-container");
+        hover_container.style.display = "none";
+
+        function toggleHoverContainer(el_id){
+            if(hover_container.style.display == "none"){
+                hover_container.style.display = "flex";
+
+                for (const [key, value] of Object.entries(hover_elements)) {
+                
+                    if(key == el_id){
+                        value.style.display = "unset";
+                        continue;
+                    }
+
+                    value.style.display = "none";
+                }
+                
+            }else{
+                hover_container.style.display = "none";
+            }
+        }
+
+        function main() {
+            codes_holder.style.display = "none";
+            detail_holder.style.display = "none";
+        }
+
+        main();
+
+        async function showData(e, id) {
+            toggleHoverContainer("loading_spinner");    
+
+            const allOpt = document.querySelectorAll(".struct-card.row.space-between.align-center.custom-line");
+            allOpt.forEach(e => {e.classList.remove("selected")});
+            
+            e.classList.add("selected");
+
+            let shp_codes = await fetchInfo(`/api/v1/codes?batch_id=${id}`);
+            shp_codes = shp_codes.data;
+
+            let batch = await fetchInfo(`/api/v1/batches/${id}`);
+            batch = batch.data;
+
+            let codes_table_html =
+            `
+            <a class="btn primary" href="/dashboard/batches/${id}/print" ><i class="fa-solid fa-print"></i>Imprimir</a>
+            <div class="tb-body">
+                <div class="tb-header">
+                    <span>Código de Envio</span>
+                    <span>Ecommerce</span>
+                </div>
+                #CODES#
+            </div>
+            `;
+
+            codes_html = "";
+            for (const code of shp_codes) {
+                codes_html += 
+                `
+                    <div class="tb-line">
+                        <span><i class="fa-solid fa-qrcode" onclick="showQrCode('${code.code}')"> </i>${code.code}</i></span>
+                        <span>${code.ecommerce_label}</span>
+                    </div>
+                `;
+            }
+
+            codes_table_html = codes_table_html.replace("#CODES#", codes_html);
+
+            detail_holder.innerHTML =
+            `
+                <h2>Detalhes</h2>
+                <div>
+                    <p>Criado em ${corDate(batch.created_at)}</p>
+                    <p>Finalizado em ${corDate(batch.updated_at)}</p>
+                </div>
+            `;
+
+            codes_holder.innerHTML = codes_table_html;
+
+            codes_holder.style.display = "flex";
+            detail_holder.style.display = "flex";
+
+            toggleHoverContainer();
+        }
+
+        async function getData() {
+            date_in.value
+            date_out.value
+
+            if(date_in.value == "" || date_out.value == ""){
+                return pushNotify("error", "Escolha duas datas!");
+            }
+
+            toggleHoverContainer("loading_spinner");
+
+            let batches = await fetchInfo(`/api/v1/batches?date_from=${date_in.value}&date_to=${date_out.value}`);
+            batches = batches.data;
+            
+            let batches_holder_html = "";
+
+            for (const batch of batches) {
+                let image;
+
+                switch (batch.marketplace_id) {
+                    case 1:
+                        image = "shopee_logo"
+                        break;
+                    case 2:
+                        image = "shein_logo"
+                        break;
+                }
+
+                let status_color;
+
+                switch (batch.status_id) {
+                    case 1:
+                        status_color = "danger"
+                        break;
+                    case 2:
+                        status_color = "success"
+                        break;                   
+                    case 3:
+                        status_color = "warning"
+                        break;             
+                }
+
+                batches_holder_html += 
+                `
+                    <div onclick="showData(this, ${batch.id})" class="struct-card row space-between align-center custom-line">
+                        <div>
+                            <img src="/public/images/${image}.jpg" alt="">
+                            <div>
+                                <h3>#${batch.id} <span class="label ${status_color}">${batch.status_label}</span></h3>
+                                <span>${corDate(batch.created_at)}</span>
+                            </div>
+                        </div>
+                        <h2>${batch.quantity}</h2>
+                    </div>
+                `;
+            }
+
+            batches_holder.innerHTML = batches_holder_html;
+
+            toggleHoverContainer();
+        }
+
+        function showQrCode(code){
+            document.getElementById("qr_code_holder").innerHTML = "";
+
+            new QRCode(document.getElementById("qr_code_holder"), {
+                text: code,
+                width: 256,
+                height: 256
+            });
+
+            document.querySelector("#qr_code_viwer h3").innerHTML = "QR Code - " + code;
+
+            toggleHoverContainer("qr_code_viwer");
+        }
+
+        function corDate(date){
+			if(!date) return "";
+
+			date = new Date(date)
+
+			date.setHours(date.getHours() - 3, date.getMinutes(), date.getSeconds())
+
+			date = date.toISOString();
+
+			var newDate = date.split(".")[0]
+			newDate = newDate.split("T");
+
+			var day = newDate[0].split("-")
+			return `${day[2]}/${day[1]}/${day[0]} ${newDate[1]}`;
+		}
+    </script>
+</body>
+</html>

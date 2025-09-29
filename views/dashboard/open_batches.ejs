@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Produtos</title>
+    <script src="https://kit.fontawesome.com/2f7352ec62.js" crossorigin="anonymous"></script>
+    <script src="/public/scripts/http_helper.js"></script>
+    <script src="/public/scripts/notifications.js" defer></script>
+    <script src="/public/scripts/inputs.js" defer></script>
+
+    <link rel="stylesheet" href="/public/styles/main.css">
+    <link rel="stylesheet" href="/public/styles/buttons.css">
+    <link rel="stylesheet" href="/public/styles/structure_cards.css">
+    <link rel="stylesheet" href="/public/styles/grid_table.css">
+    <link rel="stylesheet" href="/public/styles/info_card.css">
+    <link rel="stylesheet" href="/public/styles/inputs.css">
+
+    <style>
+        .btn
+        {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+        }
+
+        nav .btn > i 
+        {
+            margin-right: 1rem;
+            font-size: 1.5rem;
+        }
+
+        .custom-line > div:nth-child(1)
+        {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .custom-line img
+        {
+            width: 3.5rem;
+            height: auto;
+            border-radius: .5rem;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div>
+            <a class="btn basic" id="shopee" href="/dashboard/shopee">Shopee</a>
+            <a class="btn basic" id="shein" href="/dashboard/shein">Shein</a>
+        </div>
+        <div>
+            <a class="btn primary" id="insert-code" href="/dashboard/insert-code">
+                <i class="fa-solid fa-qrcode"></i>
+                Inserir Código
+            </a>
+        </div>
+        <div>
+            <a class="btn basic" id="batches" href="/dashboard/batches">Lotes Abertos</a>
+            <a class="btn basic" id="history" href="/dashboard/history">Histórico</a>
+        </div>
+    </nav>
+    <div class="notification" id="notification">
+        <div>
+            <i class="fa-solid fa-check"></i>
+            <div>
+                <p></p>
+            </div>
+        </div>
+    </div>
+    <div class="hover-container">
+        <div class="ifc-loading" id="loading_spinner">
+            <div class="lds-dual-ring"></div>
+            <label for="">Aguarde...</label>
+        </div>
+    </div>
+    <div class="container-flex">
+        <div class="content" id="batches_holder">
+            <!-- <a href="#" class="struct-card row w25 space-between align-center custom-line">
+                <div>
+                     <img src="/public/images/shein_logo.jpg" alt="">
+                    <div>
+                        <h3>ABERTO</h3>
+                        <span>05/05/2025 03:50:23</span>
+                    </div>
+                </div>
+                <h2>33</h2>
+            </a> -->
+        </div>
+    </div>
+    <script>
+        const current_page = document.location.pathname.split("/")[2];
+        document.getElementById(current_page).classList.add("selected");
+
+        const batches_holder = document.querySelector("#batches_holder");
+
+        const hover_elements = 
+        {
+            loading_spinner: document.querySelector("#loading_spinner"), 
+        }
+
+        const hover_container = document.querySelector(".hover-container");
+        hover_container.style.display = "none";
+
+        function toggleHoverContainer(el_id){
+            if(hover_container.style.display == "none"){
+                hover_container.style.display = "flex";
+
+                for (const [key, value] of Object.entries(hover_elements)) {
+                
+                    if(key == el_id){
+                        value.style.display = "flex";
+                        continue;
+                    }
+
+                    value.style.display = "none";
+                }
+                
+            }else{
+                hover_container.style.display = "none";
+            }
+        }
+
+        async function main()
+        {
+            let batches = await fetchInfo(`/api/v1/batches?status_id=1,2,3`);
+            batches = batches.data;
+
+            let batches_html = "";
+
+            for (const batch of batches) {
+                let image;
+
+                switch (batch.marketplace_id) {
+                    case 1:
+                        image = "shopee_logo"
+                        break;
+                    case 2:
+                        image = "shein_logo"
+                        break;
+                }
+
+                let status_color;
+
+                switch (batch.status_id) {
+                    case 1:
+                        status_color = "danger"
+                        break;
+                    case 2:
+                        status_color = "success"
+                        break;                   
+                    case 3:
+                        status_color = "warning"
+                        break;             
+                }
+
+                batches_html += 
+                `
+                    <a href="/dashboard/batches/${batch.id}" class="struct-card row w25 space-between align-center custom-line">
+                        <div>
+                            <img src="/public/images/${image}.jpg" alt="">
+                            <div>
+                                <h3>#${batch.id} <span class="label ${status_color}">${batch.status_label}</span></h3>
+                                <span>${corDate(batch.created_at)}</span>
+                            </div>
+                        </div>
+                        <h2>${batch.quantity}</h2>
+                    </a>
+                `;
+            }
+
+            batches_holder.innerHTML = batches_html;
+        }
+
+        main();
+
+        function corDate(date){
+			if(!date) return "";
+
+			date = new Date(date)
+
+			date.setHours(date.getHours() - 3, date.getMinutes(), date.getSeconds())
+
+			date = date.toISOString();
+
+			var newDate = date.split(".")[0]
+			newDate = newDate.split("T");
+
+			var day = newDate[0].split("-")
+			return `${day[2]}/${day[1]}/${day[0]} ${newDate[1]}`;
+		}
+    </script>
+</body>
+</html>

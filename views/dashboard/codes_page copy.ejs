@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Produtos</title>
+    <script src="https://kit.fontawesome.com/2f7352ec62.js" crossorigin="anonymous"></script>
+    <script src="/public/scripts/http_helper.js"></script>
+    <link rel="stylesheet" href="/public/styles/main.css">
+    <link rel="stylesheet" href="/public/styles/buttons.css">
+    <style>
+        
+    </style>
+</head>
+<body>
+    <nav>
+        <div>
+            <button class="btn basic" >Shopee</button>
+            <button class="btn basic selected" >Shein</button>
+        </div>
+        <div>
+             <button class="btn primary" onclick="toggleHoverContainer('create_product')">Lotes</button>
+        </div>
+    </nav>
+    <div class="notification" id="notification">
+        <div>
+            <i class="fa-solid fa-check"></i>
+            <div>
+                <p></p>
+            </div>
+        </div>
+    </div>
+    <div class="hover-container">
+        
+    </div>
+    <div class="container">
+        
+        
+    </div>
+    <script>
+        const hover_container = document.querySelector(".hover-container");
+        hover_container.style.display = "none";
+
+        function toggleHoverContainer(el_id){
+            if(hover_container.style.display == "none"){
+                hover_container.style.display = "flex";
+
+                for (const [key, value] of Object.entries(hover_elements)) {
+                
+                    if(key == el_id){
+                        value.style.display = "unset";
+                        continue;
+                    }
+
+                    value.style.display = "none";
+                }
+                
+            }else{
+                hover_container.style.display = "none";
+            }
+        }
+    </script>
+</body>
+</html>
