@@ -1,4 +1,4 @@
-# 3qr_codes_history
+# qr_codes_history
 
 The purpose of this system is to consolidate the QR codes of products that will be shipped in a batch by the dispatch team. In the unloading area, the responsible employee has access to the batch QR codes and can efficiently hand them over to the carrier’s driver, thereby ensuring greater speed and traceability in the package delivery process.
 
