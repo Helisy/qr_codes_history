@@ -21,6 +21,11 @@ router.get('/shein', async (req, res) => {
     res.render("dashboard/codes_page");
 });
 
+router.get('/not-tracked', async (req, res) => {
+    res.render("dashboard/codes_page");
+});
+
+
 router.get('/insert-code', async (req, res) => {
     res.render("dashboard/insert_code");
 });

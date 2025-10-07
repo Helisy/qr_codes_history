@@ -29,9 +29,9 @@ async function getEcommerceBySHPCode(shipping_code) {
             `
         );
 
-        return result.recordsets[0][0]['ECOMMERCE'];
+        return result.recordsets[0].length < 1 ? null : result.recordsets[0][0]['ECOMMERCE'];
     } catch (err) {
-        console.log("getEcommerceBySHPCode(shipping_code)")
+        console.log("Error on getEcommerceBySHPCode(shipping_code)")
         throw(err)
     }
 }

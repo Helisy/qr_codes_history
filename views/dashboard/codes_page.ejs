@@ -37,6 +37,7 @@
         <div>
             <a class="btn basic" id="shopee" href="/dashboard/shopee">Shopee</a>
             <a class="btn basic" id="shein" href="/dashboard/shein">Shein</a>
+            <a class="btn basic" id="not-tracked" href="/dashboard/not-tracked">Não Rastreado</a>
         </div>
         <div>
             <a class="btn primary" id="insert-code" href="/dashboard/insert-code">
@@ -78,7 +79,7 @@
     <div class="container-flex">
         <div class="content">
             <div class="struct-card row align-center space-between">
-                <h1 id="mktp_title">Shein</h1>
+                <h1 id="mktp_title"></h1>
                 <button class="btn primary" onclick="closeBatch('loading_spinner')">Fechar Lote</button>
             </div>
             <div class="struct-card align-start w50">
@@ -100,7 +101,7 @@
         document.getElementById(current_page).classList.add("selected");
 
         const mktp_title = document.querySelector("#mktp_title");
-        let mktp = current_page.slice(0,1).toLocaleUpperCase() + current_page.slice(1);
+        let mktp = document.getElementById(current_page).innerHTML;
 
         mktp_title.innerHTML = mktp;
 
@@ -143,6 +144,9 @@
                 break;
             case "shein":
                 marketplace_id = 2;
+                break;
+            case "not-tracked":
+                marketplace_id = 3;
                 break;
         }
 

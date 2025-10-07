@@ -44,6 +44,7 @@
         <div>
             <a class="btn basic" id="shopee" href="/dashboard/shopee">Shopee</a>
             <a class="btn basic" id="shein" href="/dashboard/shein">Shein</a>
+            <a class="btn basic" id="not-tracked" href="/dashboard/not-tracked">Não Rastreado</a>
         </div>
         <div>
             <a class="btn primary" id="insert-code" href="/dashboard/insert-code">
@@ -383,7 +384,7 @@
             });
 
             const h3 = document.createElement('h3');
-            h3.textContent = "Pressione espaço para avançar";
+            h3.textContent = "Pressione enter para avançar";
 
             const span = document.createElement('span');
             span.textContent = codes[0].code;

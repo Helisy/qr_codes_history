@@ -97,7 +97,16 @@ router.post('/', checkSchema(postCodesValidation), async (req, res) => {
             return apiClientError(req, res, [], "O formato do código de envio é inválido.", 400)
     }
 
-    const ecommerce_name = await getEcommerceBySHPCode(req.body.code);
+    let ecommerce_name;
+
+    try {
+        ecommerce_name = await getEcommerceBySHPCode(req.body.code);
+        if(ecommerce_name == null){
+            return handleCodeNotInAton(req, res);
+        }
+    } catch (error) {
+        return apiServerError(req, res, error);
+    }
 
     req.body.marketplace_id = origin;
     req.body.ecommerce_label = ecommerce_name;
@@ -131,7 +140,41 @@ router.post('/', checkSchema(postCodesValidation), async (req, res) => {
     );
 });
 
+async function handleCodeNotInAton(req, res){
+    req.body.marketplace_id = 3;
+    req.body.ecommerce_label = "-";
+
+    const sql = buildMySqlInsert("shipping_codes", req.body);
+
+    let data = [];
+    try {
+
+        const [rows] = await db.query(`select * from shipping_codes where code = ?`, [req.body.code.trim()]);
+
+        if(rows.length > 0){
+            return apiClientError(req, res, [], `O código de envio ${req.body.code} já foi criado.`, 400)
+        }
+    
+        await db.query(sql, Object.values(req.body));
+        const [rows_1] = await db.query(`SELECT * FROM shipping_codes order by id desc limit 1`);  
+        data = rows_1[0];
+    } catch (error) {
+        return apiServerError(req, res, error);
+    }
+
+    res.status(201).json(
+        {
+            method: req.method,
+            error: false,
+            code: 201,
+            message: "Shipping code created successfully",
+            data: data,
+        }
+    );
+}
+
 const putCodesValidation = require("../../../validation/v1/codes/vl_put_codes"); 
+const { raw } = require('mysql2');
 router.put('/:id', param('id').isInt(), checkSchema(putCodesValidation), async (req, res) => {
     const id = req.params.id;
 

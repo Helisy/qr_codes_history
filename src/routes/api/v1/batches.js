@@ -200,7 +200,7 @@ router.post('/', checkSchema(postBatchesValidation), async (req, res) => {
         const [rows_1] = await db.query(`SELECT * FROM batches order by id desc limit 1`);  
 
 
-        await db.query(`update shipping_codes set batch_id = ? where marketplace_id = ?`, [rows_1[0].id, req.body.marketplace_id]);
+        await db.query(`update shipping_codes set batch_id = ? where marketplace_id = ? and batch_id is null`, [rows_1[0].id, req.body.marketplace_id]);
 
 
         data = rows_1[0];
